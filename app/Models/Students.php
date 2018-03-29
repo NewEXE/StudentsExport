@@ -13,18 +13,24 @@ class Students extends Model
      */
     protected $table = 'student';
 
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function course()
     {
-        return $this->belongsTo('Course');
+        return $this->belongsTo(Course::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function address()
     {
-
-        return $this->hasOne('StudentAddresses', 'id');
-
+        return $this->hasOne(StudentAddresses::class, 'id');
     }
 }

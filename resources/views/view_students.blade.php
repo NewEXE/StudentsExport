@@ -80,7 +80,7 @@
                         <th>Course</th>
                     </tr>
 
-                    @if(  count($students) > 0 )
+                    @if( count($students) > 0 )
                     @foreach($students as $student)
                     <tr>
                         <td><input type="checkbox" name="studentId" value="{{$student['id']}}"></td>
