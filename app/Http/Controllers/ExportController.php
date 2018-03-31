@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\CsvProcessor;
 use App\Models\Students;
 use Illuminate\Http\Request;
+use CSV;
 
 class ExportController extends Controller
 {
@@ -28,16 +30,23 @@ class ExportController extends Controller
 
     /**
      * Exports all student data to a CSV file
+     * @param Request $request
      */
-    public function exportStudentsToCSV()
+    public function exportStudentsToCSV(Request $request)
     {
+        $checkedIds = $request->checkedIds;
 
+        $students = Students::whereIn('id', $checkedIds)->with(['address', 'course'])->get();
+
+        CSV::outputCsv($students);
     }
 
     /**
      * Exports the total amount of students that are taking each course to a CSV file
+     * @param Request $request
+     * @param CsvProcessor $csv CsvProcessor injection demonstration
      */
-    public function exporttCourseAttendenceToCSV()
+    public function exporttCourseAttendenceToCSV(Request $request, CsvProcessor $csv)
     {
 
     }

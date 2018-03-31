@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
@@ -55,6 +55,8 @@
                 margin: 16px 0 0 0;
             }
         </style>
+        <script type="text/javascript" src="{{ asset('js/jquery.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('js/main.js') }}"></script>
     </head>
 
     <body>
@@ -62,8 +64,8 @@
         <div class="header">
             <div><img src="/images/logo_sm.jpg" alt="Logo" title="logo"></div>
             <div  style='margin: 10px;  text-align: left'>
-                <input type="button" value="Select All"/>
-                <input type="button" value="Export"/>
+                <input type="button" value="Select All" id="_selectAll" />
+                <input type="button" value="Export" id="_export" data-url="{{ route('export') }}" />
             </div>
         </div>
 
@@ -83,12 +85,12 @@
                     @if( count($students) > 0 )
                     @foreach($students as $student)
                     <tr>
-                        <td><input type="checkbox" name="studentId" value="{{$student['id']}}"></td>
-                        <td style=' text-align: left;'>{{$student['firstname']}}</td>
-                        <td style=' text-align: left;'>{{$student['surname']}}</td>
-                        <td style=' text-align: left;'>{{$student['email']}}</td>
-                        <td style=' text-align: left;'>{{$student['course']['university']}}</td>
-                        <td style=' text-align: left;'>{{$student['course']['course_name']}}</td>
+                        <td><input type="checkbox" name="studentId" value="{{ $student['id'] }}"></td>
+                        <td style=' text-align: left;'>{{ $student['firstname'] }}</td>
+                        <td style=' text-align: left;'>{{ $student['surname'] }}</td>
+                        <td style=' text-align: left;'>{{ $student['email'] }}</td>
+                        <td style=' text-align: left;'>{{ $student['course']['university'] }}</td>
+                        <td style=' text-align: left;'>{{ $student['course']['course_name'] }}</td>
                     </tr>
                     @endforeach
                     @else
