@@ -63,9 +63,26 @@
         
         <div class="header">
             <div><img src="/images/logo_sm.jpg" alt="Logo" title="logo"></div>
+
+            @if(session()->has('message'))
+                <p style="color: red">{{ session('message') }}</p>
+            @endif
+
             <div  style='margin: 10px;  text-align: left'>
-                <input type="button" value="Select All" id="_selectAll" />
-                <input type="button" value="Export" id="_export" data-url="{{ route('export') }}" />
+
+                <input type="button" value="Select All" class="_selectAll" />
+
+                <form action="{{ route('export.students') }}" method="post">
+                    {{ csrf_field() }}
+                    <input type="hidden" name="checkedIds" value="">
+                    <input type="button" value="Export" id="_exportStudents" />
+                </form>
+
+                <form action="{{ route('export.attendence') }}" method="post">
+                    {{ csrf_field() }}
+                    <input type="button" value="Export all courses attendence" id="_exportAttendence" />
+                </form>
+
             </div>
         </div>
 
@@ -74,7 +91,7 @@
             <div style='margin: 10px; text-align: center;'>
                 <table class="student-table">
                     <tr>
-                        <th></th>
+                        <th><input type="checkbox" class="_selectAll" /></th>
                         <th>Forename</th>
                         <th>Surname</th>
                         <th>Email</th>
@@ -82,16 +99,16 @@
                         <th>Course</th>
                     </tr>
 
-                    @if( count($students) > 0 )
+                    @if($students->count())
                     @foreach($students as $student)
-                    <tr>
-                        <td><input type="checkbox" name="studentId" value="{{ $student['id'] }}"></td>
-                        <td style=' text-align: left;'>{{ $student['firstname'] }}</td>
-                        <td style=' text-align: left;'>{{ $student['surname'] }}</td>
-                        <td style=' text-align: left;'>{{ $student['email'] }}</td>
-                        <td style=' text-align: left;'>{{ $student['course']['university'] }}</td>
-                        <td style=' text-align: left;'>{{ $student['course']['course_name'] }}</td>
-                    </tr>
+                        <tr>
+                            <td><input type="checkbox" name="studentId" value="{{ $student['id'] }}"></td>
+                            <td style=' text-align: left;'>{{ $student['firstname'] }}</td>
+                            <td style=' text-align: left;'>{{ $student['surname'] }}</td>
+                            <td style=' text-align: left;'>{{ $student['email'] }}</td>
+                            <td style=' text-align: left;'>{{ $student['course']['university'] }}</td>
+                            <td style=' text-align: left;'>{{ $student['course']['course_name'] }}</td>
+                        </tr>
                     @endforeach
                     @else
                     <tr>

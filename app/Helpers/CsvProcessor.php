@@ -8,6 +8,7 @@
 
 namespace App\Helpers;
 use Illuminate\Database\Eloquent\Collection;
+use Symfony\Component\Routing\Exception\InvalidParameterException;
 
 /**
  * Class CsvProcessor
@@ -18,57 +19,91 @@ class CsvProcessor
     /**
      * @var string CSV fields separator
      */
-    const SEPARATOR = ';';
+    const SEPARATOR = ',';
 
     /**
-     * @param Collection $data
-     * @param int $fillHeadingFrom
+     * @var string Postfix for adding current date to output filename
      */
-    function outputCsv(Collection $data, $fillHeadingFrom = 0)
+    const DATETIME_FORMAT = '-d-m-Y-H_i_s';
+
+    /**
+     * @param Collection|array $data
+     * @param int $fillHeadingFrom
+     * @param string $filename
+     * @throws InvalidParameterException
+     */
+    function outputCsv($data, $fillHeadingFrom = 0, $filename = 'export')
     {
+        if (!count($data)) throw new InvalidParameterException('Collection or array for export must be not empty');
+
+        $this->_sendHeadersForCsvOutput($filename);
+
         /** @var string $csvHeading CSV heading row */
         $csvHeading = '';
         /** @var string $csvContent Main CSV content */
         $csvContent = '';
 
-        $modelForHeading = $data[$fillHeadingFrom];
-        $csvHeading .= implode(self::SEPARATOR, array_keys($modelForHeading->getAttributes()));
-        $relations = $modelForHeading->getRelations();
-
-        foreach ($relations as $relation)
+        if ($data instanceof Collection)
         {
-            $csvHeading .= implode(self::SEPARATOR, array_keys($relation->getAttributes()));
+            $modelForHeading = $data[$fillHeadingFrom];
+            $csvHeading .= '"' . implode('"' . self::SEPARATOR . '"', array_keys($modelForHeading->getAttributes())) . '"';
             $csvHeading .= self::SEPARATOR;
-        }
 
-        $csvHeading .= "\n";
-
-        foreach ($data as $model)
-        {
-            $csvContent .= implode(self::SEPARATOR, $model->getAttributes());
-
-            $relations = $model->getRelations();
+            $relations = $modelForHeading->getRelations();
             foreach ($relations as $relation)
             {
-                $csvContent .= implode(self::SEPARATOR, $relation->getAttributes());
+                $csvHeading .= '"' . implode('"' . self::SEPARATOR . '"', array_keys($relation->getAttributes())) . '"';
                 $csvHeading .= self::SEPARATOR;
             }
 
-            $csvContent .= "\n";
+            $csvHeading .= "\r\n";
+
+            foreach ($data as $model)
+            {
+                $csvContent .= '"' . implode('"' . self::SEPARATOR . '"', $model->getAttributes()) . '"';
+                $csvContent .= self::SEPARATOR;
+
+                $relations = $model->getRelations();
+                foreach ($relations as $key => $relation)
+                {
+                    $csvContent .= $relation ?
+                        '"' . implode('"' . self::SEPARATOR . '"', $relation->getAttributes()) . '"' : '""';
+
+                    $csvContent .= self::SEPARATOR;
+                }
+
+                $csvContent .= "\r\n";
+            }
+
+            echo $csvHeading . $csvContent;
+
         }
+        elseif (is_array($data))
+        {
+            $out = fopen('php://output', 'w');
 
-        $this->_sendHeadersForCsvOutput();
+            $itemForHeading = array_keys($data[$fillHeadingFrom]);
 
-        echo $csvHeading . $csvContent;
+            fputcsv($out, $itemForHeading);
+
+            foreach ($data as $item)
+            {
+                  fputcsv($out, $item);
+            }
+
+            fclose($out);
+        }
     }
 
     /**
+     * @param string $filename
      * @return void
      */
-    private function _sendHeadersForCsvOutput()
+    private function _sendHeadersForCsvOutput($filename = 'export')
     {
+        $filename .= date(self::DATETIME_FORMAT);
         header("Content-type: text/csv");
-        header("Content-Disposition: attachment; filename=export.csv");
+        header("Content-Disposition: attachment; filename={$filename}.csv");
         header("Pragma: no-cache");
         header("Expires: 0");
     }
