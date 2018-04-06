@@ -2,12 +2,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     $('._selectAll').on('click', function (event) {
 
-        var selector = $('input[type="checkbox"][name="studentId"]');
+        var studentIdCheckboxes = $('input[type="checkbox"][name="studentId"]');
 
-        if(selector.prop('checked'))
-            selector.prop('checked', false);
+        if(studentIdCheckboxes.prop('checked'))
+            studentIdCheckboxes.prop('checked', false);
         else
-            selector.prop('checked', true);
+            studentIdCheckboxes.prop('checked', true);
     });
 
     $('#_exportStudents').on('click', function (event) {
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         var form = $(this).parent();
-        $(this).parent().find('input[type="hidden"][name="checkedIds"]').val(checkedIds);
+        form.find('input[type="hidden"][name="checkedIds"]').val(checkedIds);
         form.submit();
 
     });
